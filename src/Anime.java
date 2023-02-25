@@ -86,14 +86,10 @@ public class Anime {
     this.name = dis.readUTF();
     this.score = dis.readFloat();
     int len = dis.readShort(); // Quantidade de generos
-    for (int i = 0; i < this.genres.length; i++) {
+    for (int i = 0; i < len; i++) {
       this.genres[i] = dis.readUTF();
     }
     this.episodes = dis.readShort();
     this.aired = dis.readUTF();
-  }
-
-  public short size() throws IOException {
-    return (short) this.toByteArray().length;
   }
 }
