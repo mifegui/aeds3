@@ -39,16 +39,18 @@ public class Anime {
   }
 
   public void print() {
+    System.out.println("ID: " + this.id);
     System.out.println("Nome: " + this.name);
-    System.out.println("Data de exibição" + this.aired);
+    System.out.println("Data de exibição: " + this.aired);
     System.out.println("Nota: " + this.score);
     System.out.println("Episódios: " + this.episodes);
     System.out.println("Gêneros: ");
     System.out.print("[ ");
     for (int i = 0; i < this.genres.length; i++) {
       System.out.print(this.genres[i]);
-      System.out.print(" ]");
     }
+    System.out.print(" ]");
+    System.out.println();
   }
 
   /**
