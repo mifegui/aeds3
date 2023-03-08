@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +23,8 @@ public class Arquivo {
       System.out.println((e));
     }
   }
-/*CREATE ANTIGO
+
+  /*CREATE ANTIGO
   public void create(Anime anime) {
     if (!alreadyExists()) {
       initializeFile();
@@ -34,76 +37,74 @@ public class Arquivo {
     }
   }
 */
-    //---------------------------------------------------------CREATE
+  //---------------------------------------------------------CREATE
 
-  public void create(Anime anime)throws IOException{
-    try{//primeiros 4 bytes        |   1 byte(char)  |   5° byte
-        //pos(0) = tam arquivo(qnt); pos (1) = lapide; pos (2) = tam registro
-        int posicao = 0;
-        int tamanho = 0;
-        int id = 0;
-        byte[] ba = anime.toByteArray();
-        RandomAccessFile raf = new RandomAccessFile("../bd/banco.db", "rw");
-        raf.seek(0);
-        //"precisava" pegar ultimo id para somar, mas n fiz isso :(
-        raf.seek(raf.length());//mover para o fim do arquivo
-        raf.writeChar(" ");
-        raf.writeInt(ba.length());//escrever
-        raf.write(ba);//escrever
-        raf.close();
-    }
-  }
-    //---------------------------------------------------------READ
-
-  public Anime read(int id)throws IOException{
+  public void create(Anime anime) throws Exception {
+    //pos(0) = tam arquivo(qnt); pos (1) = lapide; pos (2) = tam registro
+    int posicao = 0;
+    int tamanho = 0;
+    int id = 0;
+    byte[] ba = anime.toByteArray();
     RandomAccessFile raf = new RandomAccessFile("../bd/banco.db", "rw");
-    byte[] ba;//conjunto vazio
+    raf.seek(0);
+    //"precisava" pegar ultimo id para somar, mas n fiz isso :(
+    raf.seek(raf.length()); //mover para o fim do arquivo
+    raf.writeChar(' ');
+    raf.writeInt(ba.length); //escrever
+    raf.write(ba); //escrever
+    raf.close();
+  }
+
+  //---------------------------------------------------------READ
+
+  public Anime read(int id) throws Exception {
+    RandomAccessFile raf = new RandomAccessFile("../bd/banco.db", "rw");
+    byte[] ba; //conjunto vazio
     Anime anime = new Anime();
     char lapide;
     int tamanho;
-    raf.seek(4);//mover para o primeiro registro
-    while(raf.getFilePointer()<raf.length())//enquanto n atingir fim do arquivo
-    {
+    raf.seek(4); //mover para o primeiro registro
+    while (raf.getFilePointer() < raf.length()) { //enquanto n atingir fim do arquivo
       lapide = raf.readChar();
       tamanho = raf.readInt();
       ba = new byte[tamanho];
-      if(lapide != "*"){
+      if (lapide != '*') {
         anime.fromByteArray(ba);
-        if(anime.getId()==id)
-          return anime;
+        if (anime.getId() == id) return anime;
       }
     }
     raf.close();
-    return null;//caso tudo dê errado
+    return null; //caso tudo dê errado
   }
+
   //---------------------------------------------------------UPDATE
-  public boolean update(Anime novo){
+  public boolean update(Anime novo) throws Exception {
     RandomAccessFile raf = new RandomAccessFile("../bd/banco.db", "rw");
-    int posicao;
+    long posicao;
     char lapide;
     int tamanho;
     Anime anime = new Anime();
     boolean result;
     byte[] ba;
     byte[] novoba;
-    raf.seek(4);//mover para o primeiro registro do arquivo
-    while(raf.getFilePointer()<raf.length()){//enquanto nao chegar no fim do arquivo
-      posicao = raf.getFilePointer();//salvar posicao do ponteiro
+    raf.seek(4); //mover para o primeiro registro do arquivo
+    while (raf.getFilePointer() < raf.length()) { //enquanto nao chegar no fim do arquivo
+      posicao = raf.getFilePointer(); //salvar posicao do ponteiro
       lapide = raf.readChar();
-      if(lapide != "*"){
+      if (lapide != '*') {
         tamanho = raf.readInt();
         ba = new byte[tamanho];
         raf.read(ba);
-        anime.fromByteArray(ba);//extrair objeto do registro
-        if(novo.getId() == anime.getId()){
-          novoba = raf.toByteArray();//criar novoRegistro
-          if(novoba.length()<=tamanho){
-            raf.seek(posicao+6);
+        anime.fromByteArray(ba); //extrair objeto do registro
+        if (novo.getId() == anime.getId()) {
+          novoba = anime.toByteArray(); //criar novoRegistro
+          if (novoba.length <= tamanho) {
+            raf.seek(posicao + 6);
             raf.write(novoba);
-          }else{
+          } else {
             raf.seek(raf.length());
-            raf.writeChar(' ');//lapide
-            raf.writeInt(novoab.length());//tamanho
+            raf.writeChar(' '); //lapide
+            raf.writeInt(novoba.length); //tamanho
             raf.write(novoba);
             result = delete(anime.getId());
           }
@@ -115,26 +116,26 @@ public class Arquivo {
     raf.close();
     return false;
   }
+
   //---------------------------------------------------------DELETE
-  public boolean delete(int id){
+  public boolean delete(int id) throws Exception {
     RandomAccessFile raf = new RandomAccessFile("../bd/banco.db", "rw");
-    int pos;
+    long pos;
     int lapide;
     int tamanho;
     Anime anime = new Anime();
     byte[] ba;
-    raf.seek(4);//mover para o primeiro registro
-    while(raf.getFilePointer()<raf.length())//enquanto nao chegar no fim do arquivo
-    {
+    raf.seek(4); //mover para o primeiro registro
+    while (raf.getFilePointer() < raf.length()) { //enquanto nao chegar no fim do arquivo
       pos = raf.getFilePointer();
       lapide = raf.readChar();
-      if(lapide != "*"){
+      if (lapide != '*') {
         tamanho = raf.readInt();
         ba = new byte[tamanho];
         anime.fromByteArray(ba);
-        if(anime.getId() == id){
-          raf.seek(pos);//mover para pos
-          raf.writeChar('*');//marca lapide como excluido
+        if (anime.getId() == id) {
+          raf.seek(pos); //mover para pos
+          raf.writeChar('*'); //marca lapide como excluido
           raf.close();
           return true;
         }

@@ -23,16 +23,26 @@ public class Main {
 
     int choice = -1;
     do {
-
       choice = menu();
 
-      switch(choice){
-        case 1:{create();}//create(novo_objeto)
-        case 2:{read();}//read(id)
-        case 3:{update();}//update(obj_atualizado)
-        case 4:{delete();}//delete(id)
+      switch (choice) {
+        case 1:
+          {
+            create();
+          } //create(novo_objeto)
+        case 2:
+          {
+            read();
+          } //read(id)
+        case 3:
+          {
+            update();
+          } //update(obj_atualizado)
+        case 4:
+          {
+            delete();
+          } //delete(id)
       }
-
     } while (choice != 0);
   }
 
@@ -41,7 +51,7 @@ public class Main {
    * Só retorna se for uma opcao valida
    * @return int com a opcao
    */
-  static int readChoiceFromUser() {
+  static int readChoiceFromUser() throws Exception {
     int opcao = -1;
     do {
       try {
@@ -61,7 +71,7 @@ public class Main {
    * menu executa o que o usuario quer
    * retorna o int que foi executado
    */
-  static int menu() {
+  static int menu() throws Exception {
     System.out.println("===========Menu=============");
     System.out.println("||                        ||");
     System.out.println("|| 0 Sair                 ||");
@@ -107,9 +117,10 @@ public class Main {
     }
     System.out.println();
   }
+
   //---------------------------------------------------------
   //CRUD
-  public Anime ler()throws IOException{
+  public static Anime ler() throws IOException {
     Anime anime = new Anime();
 
     System.out.print("Enter ID: ");
@@ -125,7 +136,7 @@ public class Main {
     anime.setScore(score);
 
     System.out.print("Enter genres (space separated): ");
-    String genresString = sc.next();
+    String[] genres = sc.next().split(" ");
     anime.setGenres(genres);
 
     System.out.print("Enter number of episodes: ");
@@ -136,24 +147,28 @@ public class Main {
     String aired = sc.next();
     anime.setAired(aired);
 
-    return(anime);
+    return (anime);
   }
+
   //---------------------------------------------------------
-  public void create()throws IOException{
+  public static void create() throws Exception {
     bd.create(ler());
   }
+
   //---------------------------------------------------------READ(id)
-  public void read(){
-    int id = sc.readInt();
+  public static void read() throws Exception {
+    int id = sc.nextInt();
     bd.read(id);
   }
+
   //---------------------------------------------------------UPDATE(obj_att)
-  public void update(){
+  public static void update() throws Exception {
     bd.update(ler());
   }
+
   //---------------------------------------------------------DELETE(id)
-  public void delete(){
-    int id = sc.readInt();
+  public static void delete() throws Exception {
+    int id = sc.nextInt();
     bd.delete(id);
   }
 }
