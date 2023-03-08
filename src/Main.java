@@ -23,7 +23,16 @@ public class Main {
 
     int choice = -1;
     do {
+
       choice = menu();
+
+      switch(choice){
+        case 1:{create();}//create(novo_objeto)
+        case 2:{read();}//read(id)
+        case 3:{update();}//update(obj_atualizado)
+        case 4:{delete();}//delete(id)
+      }
+
     } while (choice != 0);
   }
 
@@ -97,5 +106,54 @@ public class Main {
       rowsToRead--;
     }
     System.out.println();
+  }
+  //---------------------------------------------------------
+  //CRUD
+  public Anime ler()throws IOException{
+    Anime anime = new Anime();
+
+    System.out.print("Enter ID: ");
+    int id = sc.nextInt();
+    anime.setId(id);
+
+    System.out.print("Enter name: ");
+    String name = sc.next();
+    anime.setName(name);
+
+    System.out.print("Enter score: ");
+    float score = sc.nextFloat();
+    anime.setScore(score);
+
+    System.out.print("Enter genres (space separated): ");
+    String genresString = sc.next();
+    anime.setGenres(genres);
+
+    System.out.print("Enter number of episodes: ");
+    int episodes = sc.nextInt();
+    anime.setEpisodes(episodes);
+
+    System.out.print("Enter aired date: ");
+    String aired = sc.next();
+    anime.setAired(aired);
+
+    return(anime);
+  }
+  //---------------------------------------------------------
+  public void create()throws IOException{
+    bd.create(ler());
+  }
+  //---------------------------------------------------------READ(id)
+  public void read(){
+    int id = sc.readInt();
+    bd.read(id);
+  }
+  //---------------------------------------------------------UPDATE(obj_att)
+  public void update(){
+    bd.update(ler());
+  }
+  //---------------------------------------------------------DELETE(id)
+  public void delete(){
+    int id = sc.readInt();
+    bd.delete(id);
   }
 }

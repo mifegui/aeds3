@@ -22,6 +22,7 @@ public class Anime {
     this.aired = null;
   }
 
+
   public Anime(
     int id,
     String name,
@@ -37,6 +38,24 @@ public class Anime {
     this.episodes = episodes;
     this.aired = aired;
   }
+
+
+  public void setId(int id){this.id = id;}
+  public void setName(String name){this.name = name;}
+  public void setScore(float score){this.score = score;}
+  public void setGenres(String genres){this.genres = genres;}
+  public void setEpisodios(int episodes){this.episodes = episodes;}
+  public void setAired(Strinf aired){this.aired = aired;}
+
+
+  public int getId(){return id;}
+  public String getName(){return name;}
+  public float getScore(){return score;}
+  public String getGenres(){return genres;}
+  public int getEpisodes(){return episodes;}
+  public String getAired(){return  aired;}
+
+
 
   public void print() {
     System.out.println("ID: " + this.id);
@@ -94,4 +113,5 @@ public class Anime {
     this.episodes = dis.readShort();
     this.aired = dis.readUTF();
   }
+  
 }
