@@ -9,10 +9,14 @@ import java.nio.file.StandardOpenOption;
 public class Arquivo {
 
   private String stringPath = "../bd/banco.db";
-  private Path path = Paths.get((stringPath));
+  public Path path = Paths.get((stringPath));
 
   public boolean alreadyExists() {
-    return path.toFile().exists();
+    try {
+      return path.toFile().exists();
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   private void initializeFile() {
@@ -43,11 +47,24 @@ public class Arquivo {
     //pos(0) = tam arquivo(qnt); pos (1) = lapide; pos (2) = tam registro
     int posicao = 0;
     int tamanho = 0;
-    int id = 0;
-    byte[] ba = anime.toByteArray();
+    int id = anime.getId();
     RandomAccessFile raf = new RandomAccessFile("../bd/banco.db", "rw");
+
+    // Ler id adicionar 1 e atualizar no arquivo.
     raf.seek(0);
-    //"precisava" pegar ultimo id para somar, mas n fiz isso :(
+    if (anime.getId() == -1) {
+      try {
+        id = raf.readInt();
+      } catch (Exception e) { // Nao tem id
+        raf.writeInt(anime.getId());
+      }
+      id++;
+      raf.seek(0);
+    }
+    raf.writeInt(id);
+    anime.setId(id);
+
+    byte[] ba = anime.toByteArray();
     raf.seek(raf.length()); //mover para o fim do arquivo
     raf.writeChar(' ');
     raf.writeInt(ba.length); //escrever
@@ -60,16 +77,20 @@ public class Arquivo {
   public Anime read(int id) throws Exception {
     RandomAccessFile raf = new RandomAccessFile("../bd/banco.db", "rw");
     byte[] ba; //conjunto vazio
-    Anime anime = new Anime();
     char lapide;
     int tamanho;
-    raf.seek(4); //mover para o primeiro registro
-    while (raf.getFilePointer() < raf.length()) { //enquanto n atingir fim do arquivo
+    int lid = raf.readInt();
+    int idQueAcabouDeler = -1;
+    while (idQueAcabouDeler != lid) { //enquanto n atingir fim do arquivo
       lapide = raf.readChar();
       tamanho = raf.readInt();
+      Anime anime = new Anime();
       ba = new byte[tamanho];
+      raf.read(ba);
+      anime.fromByteArray(ba);
+      idQueAcabouDeler = anime.getId();
+
       if (lapide != '*') {
-        anime.fromByteArray(ba);
         if (anime.getId() == id) return anime;
       }
     }
@@ -80,28 +101,38 @@ public class Arquivo {
   //---------------------------------------------------------UPDATE
   public boolean update(Anime novo) throws Exception {
     RandomAccessFile raf = new RandomAccessFile("../bd/banco.db", "rw");
-    long posicao;
+    long posicaoDepoisDoTamanho, posicaoAntesDaLapide;
     char lapide;
     int tamanho;
     Anime anime = new Anime();
     boolean result;
     byte[] ba;
     byte[] novoba;
-    raf.seek(4); //mover para o primeiro registro do arquivo
-    while (raf.getFilePointer() < raf.length()) { //enquanto nao chegar no fim do arquivo
-      posicao = raf.getFilePointer(); //salvar posicao do ponteiro
+
+    int lid = raf.readInt();
+
+    int idQueAcabouDeler = -1;
+    while (idQueAcabouDeler != lid) { //enquanto nao chegar no fim do arquivo
+      posicaoAntesDaLapide = raf.getFilePointer();
       lapide = raf.readChar();
+      tamanho = raf.readInt();
+      posicaoDepoisDoTamanho = raf.getFilePointer();
       if (lapide != '*') {
-        tamanho = raf.readInt();
         ba = new byte[tamanho];
         raf.read(ba);
         anime.fromByteArray(ba); //extrair objeto do registro
+        idQueAcabouDeler = anime.getId();
         if (novo.getId() == anime.getId()) {
-          novoba = anime.toByteArray(); //criar novoRegistro
+          novoba = novo.toByteArray(); //criar novoRegistro
           if (novoba.length <= tamanho) {
-            raf.seek(posicao + 6);
+            raf.seek(posicaoDepoisDoTamanho);
             raf.write(novoba);
           } else {
+            // "Apaga" o atual
+            raf.seek(posicaoAntesDaLapide);
+            raf.writeChar('*'); //lapide
+
+            // Cria o novo no final do arquivo.
             raf.seek(raf.length());
             raf.writeChar(' '); //lapide
             raf.writeInt(novoba.length); //tamanho
@@ -111,6 +142,8 @@ public class Arquivo {
           raf.close();
           return true;
         }
+      } else {
+        raf.skipBytes(tamanho);
       }
     }
     raf.close();
@@ -125,13 +158,14 @@ public class Arquivo {
     int tamanho;
     Anime anime = new Anime();
     byte[] ba;
-    raf.seek(4); //mover para o primeiro registro
-    while (raf.getFilePointer() < raf.length()) { //enquanto nao chegar no fim do arquivo
+    int lid = raf.readInt();
+    while (id <= lid) { //enquanto nao chegar no fim do arquivo
       pos = raf.getFilePointer();
       lapide = raf.readChar();
+      tamanho = raf.readInt();
       if (lapide != '*') {
-        tamanho = raf.readInt();
         ba = new byte[tamanho];
+        raf.read(ba);
         anime.fromByteArray(ba);
         if (anime.getId() == id) {
           raf.seek(pos); //mover para pos
@@ -139,6 +173,8 @@ public class Arquivo {
           raf.close();
           return true;
         }
+      } else {
+        raf.skipBytes(tamanho);
       }
     }
     raf.close();

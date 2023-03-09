@@ -136,6 +136,7 @@ public class Anime {
     this.name = dis.readUTF();
     this.score = dis.readFloat();
     int len = dis.readShort(); // Quantidade de generos
+    this.genres = new String[len];
     for (int i = 0; i < len; i++) {
       this.genres[i] = dis.readUTF();
     }

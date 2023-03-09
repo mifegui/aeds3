@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class Main {
 
@@ -29,18 +30,22 @@ public class Main {
         case 1:
           {
             create();
+            break;
           } //create(novo_objeto)
         case 2:
           {
             read();
+            break;
           } //read(id)
         case 3:
           {
             update();
+            break;
           } //update(obj_atualizado)
         case 4:
           {
             delete();
+            break;
           } //delete(id)
       }
     } while (choice != 0);
@@ -85,6 +90,8 @@ public class Main {
   }
 
   public static void setupDb() throws Exception {
+    if (bd.alreadyExists()) return;
+
     int rowsToRead = 10;
     boolean skipedHeader = true;
     System.out.println(
@@ -120,15 +127,18 @@ public class Main {
 
   //---------------------------------------------------------
   //CRUD
-  public static Anime ler() throws IOException {
+  public static Anime ler(boolean askId) throws IOException {
     Anime anime = new Anime();
 
-    System.out.print("Enter ID: ");
-    int id = sc.nextInt();
-    anime.setId(id);
+    if (askId) {
+      System.out.print("Enter ID: ");
+      int id = sc.nextInt();
+      anime.setId(id);
+    }
 
     System.out.print("Enter name: ");
-    String name = sc.next();
+    sc.nextLine();
+    String name = sc.nextLine();
     anime.setName(name);
 
     System.out.print("Enter score: ");
@@ -136,7 +146,12 @@ public class Main {
     anime.setScore(score);
 
     System.out.print("Enter genres (space separated): ");
-    String[] genres = sc.next().split(" ");
+    sc.nextLine();
+    String[] genres = sc.nextLine().split(" ");
+    // Espaço para ser separador do UTF
+    for (int i = 1; i < genres.length; i++) {
+      genres[i] = " " + genres[i];
+    }
     anime.setGenres(genres);
 
     System.out.print("Enter number of episodes: ");
@@ -152,18 +167,21 @@ public class Main {
 
   //---------------------------------------------------------
   public static void create() throws Exception {
-    bd.create(ler());
+    bd.create(ler(false));
   }
 
   //---------------------------------------------------------READ(id)
   public static void read() throws Exception {
     int id = sc.nextInt();
-    bd.read(id);
+    Anime anime = bd.read(id);
+    if (anime == null) System.out.println(
+      "Anime não encontrado!"
+    ); else anime.print();
   }
 
   //---------------------------------------------------------UPDATE(obj_att)
   public static void update() throws Exception {
-    bd.update(ler());
+    bd.update(ler(true));
   }
 
   //---------------------------------------------------------DELETE(id)
