@@ -200,6 +200,7 @@ public class Main {
 
   //---------------------------------------------------------READ(id)
   public static void read() throws Exception {
+    System.out.print("ID: ");
     int id = sc.nextInt();
     Anime anime = bd.read(id);
     if (anime == null) System.out.println(

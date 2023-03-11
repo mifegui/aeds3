@@ -8,7 +8,7 @@ import java.nio.file.StandardOpenOption;
 
 public class Arquivo {
 
-  private int m = 5; // quantidade de registros cabiveis em um bloco (memoria primaria)
+  private int m = 5; // quantidade de registros por bloco (memoria primaria)
   private int n = 4; // quantidade de caminhos
 
   private String stringPath = "../bd/banco.db";
@@ -364,10 +364,6 @@ public class Arquivo {
     int auxN; // quantidade de arquivos que já tiveram suas partes ordenadas intercaladas
     int eof; // quantidade de arquivos de leitura que chegaram ao fim
     RandomAccessFile ordenado = null; // arquivo que possui os dados ordenados
-    RandomAccessFile raf = new RandomAccessFile(
-      "dadosOrdenadoVariavel.bd",
-      "rw"
-    ); // arquivo com os dados ordenados e de tamanho variável
 
     /* Limpa todos os arquivos */
     for (int i = 0; i < 2 * n; i++) arqs[i].setLength(0);
@@ -375,7 +371,6 @@ public class Arquivo {
     /* Distribuicao */
     dados.seek(0);
     int lastInt = dados.readInt();
-    raf.writeInt(lastInt); // ler ultimo id utilizado e escrever no novo arq
 
     while (dados.getFilePointer() < dados.length()) {
       // armazenar em memoria primaria m registros
@@ -486,21 +481,8 @@ public class Arquivo {
       inter++;
     }
 
-    // Trasnferir dados ordenadados para db
-    ordenado.seek(0);
-    path.toFile().delete();
-    RandomAccessFile banco = new RandomAccessFile(stringPath, "rw");
-    banco.writeInt(lastInt); // Ultimo id
-    while (ordenado.getFilePointer() < ordenado.length()) {
-      raf.writeChar(' '); // lapide
-      len = ordenado.readInt();
-      raf.writeInt(len);
-      ba = new byte[len];
-      ordenado.read(ba);
-      raf.write(ba);
-    }
-
-    raf.close();
+    putTempFileDataIntoMainFile(ordenado, lastInt);
+    deleteTempArqs(n);
   }
 
   /*
