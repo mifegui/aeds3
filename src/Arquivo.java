@@ -201,16 +201,12 @@ public class Arquivo {
     // Objeto para manipulação dos dados ordenados
     RandomAccessFile ordenado = null;
 
-    // Objeto para manipulação do arquivo com os dados ordenados
-    RandomAccessFile raf = new RandomAccessFile("dadosOrdenadoComum.bd", "rw");
-    raf.setLength(0);
-
     /* Reinicia todos os arquivos */
     for (int i = 0; i < 2 * n; i++) arqs[i].setLength(0);
 
     /* Distribuicao */
     dados.seek(0);
-    raf.writeInt(dados.readInt()); // ler ultimo id utilizado e escrever no novo arq
+    int lastint = dados.readInt();
 
     while (dados.getFilePointer() < dados.length()) {
       // armazenar em memoria primaria m registros
@@ -246,7 +242,7 @@ public class Arquivo {
     // parte ordenada de um arq = Math.pow(2, inter)* m;
     inter = 0;
     vetor = new Anime[n]; // armazenar proximo item a ser intercalado de cada arquivo de leitura
-    quant = 2; // TODO: checar se pode ser N
+    quant = 2;
     auxN = new int[n];
 
     while (quant > 1) { // verifica se intercalacao teve somente uma 'passada' (todos os registros foram para somente um arquivo)
@@ -329,16 +325,27 @@ public class Arquivo {
     }
 
     // transferir dados ordenados para um arquivo com nome padronizado
-    ordenado.seek(0);
-    while (ordenado.getFilePointer() < ordenado.length()) {
-      raf.writeBoolean(true); // lapide
-      len = ordenado.readInt();
-      raf.writeInt(len);
-      ba = new byte[len];
-      ordenado.read(ba);
-      raf.write(ba);
+    putTempFileDataIntoMainFile(ordenado, lastint);
+    deleteTempArqs(n);
+  }
+
+  // Sobrescreve banco.db com conteúdo de temp
+  // Arquivo temporário n tem ultimo id por isso vc tem que passar
+  private void putTempFileDataIntoMainFile(RandomAccessFile temp, int lastint)
+    throws Exception {
+    temp.seek(0);
+    path.toFile().delete();
+    RandomAccessFile banco = new RandomAccessFile(stringPath, "rw");
+    banco.writeInt(lastint); // lastid
+    while (temp.getFilePointer() < temp.length()) {
+      banco.writeChar(' '); // lapide
+      int len = temp.readInt();
+      banco.writeInt(len);
+      byte[] ba = new byte[len];
+      temp.read(ba);
+      banco.write(ba);
     }
-    raf.close();
+    banco.close();
   }
 
   public void intercalacaoVariavel() throws Exception {
@@ -367,12 +374,13 @@ public class Arquivo {
 
     /* Distribuicao */
     dados.seek(0);
-    raf.writeInt(dados.readInt()); // ler ultimo id utilizado e escrever no novo arq
+    int lastInt = dados.readInt();
+    raf.writeInt(lastInt); // ler ultimo id utilizado e escrever no novo arq
 
     while (dados.getFilePointer() < dados.length()) {
       // armazenar em memoria primaria m registros
       for (pos = 0; dados.getFilePointer() < dados.length() && pos < m; pos++) {
-        if (dados.readBoolean()) {
+        if (dados.readChar() == ' ') {
           len = dados.readInt();
           ba = new byte[len];
           dados.read(ba);
@@ -478,16 +486,20 @@ public class Arquivo {
       inter++;
     }
 
-    // transferir dados ordenados para um arquivo com nome padronizado
+    // Trasnferir dados ordenadados para db
     ordenado.seek(0);
+    path.toFile().delete();
+    RandomAccessFile banco = new RandomAccessFile(stringPath, "rw");
+    banco.writeInt(lastInt); // Ultimo id
     while (ordenado.getFilePointer() < ordenado.length()) {
-      raf.writeBoolean(true); // lapide
+      raf.writeChar(' '); // lapide
       len = ordenado.readInt();
       raf.writeInt(len);
       ba = new byte[len];
       ordenado.read(ba);
       raf.write(ba);
     }
+
     raf.close();
   }
 
@@ -511,6 +523,15 @@ public class Arquivo {
     }
 
     return arqs;
+  }
+
+  static void deleteTempArqs(int n) {
+    String s;
+    for (int i = 0; i < 2 * n; i++) {
+      s = "arq";
+      s += i;
+      new File(s).delete();
+    }
   }
 
   /*

@@ -102,7 +102,7 @@ public class Main {
     System.out.println("|| 4 Atualizar anime                 ||");
     System.out.println("|| 5 Deletar anime                   ||");
     System.out.println("|| 6 Ordenar Intercalação Comum      ||");
-    System.out.println("|| 7 Ordenação Intercalação Variavel ||");
+    System.out.println("|| 7 Ordenar Intercalação Variavel   ||");
     System.out.println("======================================\n");
     int choice = readChoiceFromUser();
     return choice;
