@@ -205,7 +205,8 @@ public class Main {
 
   //---------------------------------------------------------
   public static void create() throws Exception {
-    bd.create(ler(false));
+    Anime a = bd.create(ler(false));
+    System.out.println("ID: " + a.getId());
   }
 
   //---------------------------------------------------------READ(id)

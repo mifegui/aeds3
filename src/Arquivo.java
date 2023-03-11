@@ -40,7 +40,7 @@ public class Arquivo {
 
   private Anime lastCreated;
 
-  public void create(Anime anime) throws Exception {
+  public Anime create(Anime anime) throws Exception {
     //pos(0) = tam arquivo(qnt); pos (1) = lapide; pos (2) = tam registro
     int posicao = 0;
     int tamanho = 0;
@@ -68,6 +68,8 @@ public class Arquivo {
     raf.writeInt(ba.length); //escrever
     raf.write(ba); //escrever
     raf.close();
+
+    return anime;
   }
 
   //---------------------------------------------------------READ
