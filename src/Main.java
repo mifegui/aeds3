@@ -20,7 +20,7 @@ public class Main {
 
     // raf.seek(0); // Volta para o inicio do arquivo
     // int ultimoId = raf.readInt(); // Le o ultimo id utilizado
-    setupDb();
+    setupDb(false);
 
     int choice = -1;
     do {
@@ -29,22 +29,37 @@ public class Main {
       switch (choice) {
         case 1:
           {
-            create();
+            setupDb(true);
             break;
           } //create(novo_objeto)
         case 2:
           {
+            create();
+            break;
+          } //create(novo_objeto)
+        case 3:
+          {
             read();
             break;
           } //read(id)
-        case 3:
+        case 4:
           {
             update();
             break;
           } //update(obj_atualizado)
-        case 4:
+        case 5:
           {
             delete();
+            break;
+          } //delete(id)
+        case 6:
+          {
+            ordenarComum();
+            break;
+          } //delete(id)
+        case 7:
+          {
+            ordenarVariavel();
             break;
           } //delete(id)
       }
@@ -58,17 +73,18 @@ public class Main {
    */
   static int readChoiceFromUser() throws Exception {
     int opcao = -1;
+    int MAX = 7;
     do {
       try {
         System.out.print("~$ ");
         opcao = sc.nextInt();
-        if (opcao < 0 || opcao > 4) System.out.println("~$ Opção inválida!");
+        if (opcao < 0 || opcao > MAX) System.out.println("~$ Opção inválida!");
       } catch (Exception e) { // Se a opcao não for um numero
         System.out.println("~$ Opção inválida!");
         sc.nextLine();
         break;
       }
-    } while (opcao < 0 || opcao > 4);
+    } while (opcao < 0 || opcao > MAX);
     return opcao;
   }
 
@@ -77,22 +93,34 @@ public class Main {
    * retorna o int que foi executado
    */
   static int menu() throws Exception {
-    System.out.println("===========Menu=============");
-    System.out.println("||                        ||");
-    System.out.println("|| 0 Sair                 ||");
-    System.out.println("|| 1 Criar anime          ||");
-    System.out.println("|| 2 Ver lista de animes  ||");
-    System.out.println("|| 3 Atualizar anime      ||");
-    System.out.println("|| 4 Deletar anime        ||");
-    System.out.println("============================\n");
+    System.out.println("===========Menu=======================");
+    System.out.println("||                                   ||");
+    System.out.println("|| 0 Sair                            ||");
+    System.out.println("|| 1 Regerar banco                   ||");
+    System.out.println("|| 2 Criar anime                     ||");
+    System.out.println("|| 3 Ver anime por id                ||");
+    System.out.println("|| 4 Atualizar anime                 ||");
+    System.out.println("|| 5 Deletar anime                   ||");
+    System.out.println("|| 6 Ordenar Intercalação Comum      ||");
+    System.out.println("|| 7 Ordenação Intercalação Variavel ||");
+    System.out.println("======================================\n");
     int choice = readChoiceFromUser();
     return choice;
   }
 
-  public static void setupDb() throws Exception {
-    if (bd.alreadyExists()) return;
+  public static void ordenarVariavel() throws Exception {
+    bd.intercalacaoVariavel();
+  }
 
-    int rowsToRead = 10;
+  public static void ordenarComum() throws Exception {
+    bd.intercalacaoComum();
+  }
+
+  public static void setupDb(boolean force) throws Exception {
+    if (bd.alreadyExists() && !force) return;
+    bd.initializeFile();
+
+    int rowsToRead = 12250;
     boolean skipedHeader = true;
     System.out.println(
       "Lendo " + rowsToRead + " linhas do .csv para criar arquivo..."
