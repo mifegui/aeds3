@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class Main {
 
   static Scanner sc = new Scanner(System.in);
-  static Arquivo bd = new Arquivo();
+  static Arquivo bd = new Arquivo("../bd/banco.db");
 
   public static void main(String[] args) throws Exception {
     // RandomAccessFile raf = new RandomAccessFile("anime.data", "rw"); // Cria o arquivo
@@ -62,6 +62,11 @@ public class Main {
             ordenarVariavel();
             break;
           } //delete(id)
+        case 8:
+          {
+            ordenarSubs();
+            break;
+          } //delete(id)
       }
     } while (choice != 0);
   }
@@ -73,7 +78,7 @@ public class Main {
    */
   static int readChoiceFromUser() throws Exception {
     int opcao = -1;
-    int MAX = 7;
+    int MAX = 8;
     do {
       try {
         System.out.print("~$ ");
@@ -103,6 +108,7 @@ public class Main {
     System.out.println("|| 5 Deletar anime                   ||");
     System.out.println("|| 6 Ordenar Intercalação Comum      ||");
     System.out.println("|| 7 Ordenar Intercalação Variavel   ||");
+    System.out.println("|| 8 Ordenar por Substituição        ||");
     System.out.println("======================================\n");
     int choice = readChoiceFromUser();
     return choice;
@@ -114,6 +120,10 @@ public class Main {
 
   public static void ordenarComum() throws Exception {
     bd.intercalacaoComum();
+  }
+
+  public static void ordenarSubs() throws Exception {
+    bd.intercalacaoSubs();
   }
 
   public static void setupDb(boolean force) throws Exception {
