@@ -51,22 +51,27 @@ public class Main {
           {
             delete();
             break;
-          } //delete(id)
+          }
         case 6:
           {
             ordenarComum();
             break;
-          } //delete(id)
+          }
         case 7:
           {
             ordenarVariavel();
             break;
-          } //delete(id)
+          }
         case 8:
           {
             ordenarSubs();
             break;
-          } //delete(id)
+          }
+        case 9:
+          {
+            BTree();
+            break;
+          }
       }
     } while (choice != 0);
   }
@@ -78,7 +83,7 @@ public class Main {
    */
   static int readChoiceFromUser() throws Exception {
     int opcao = -1;
-    int MAX = 8;
+    int MAX = 9;
     do {
       try {
         System.out.print("~$ ");
@@ -109,9 +114,14 @@ public class Main {
     System.out.println("|| 6 Ordenar Intercalação Comum      ||");
     System.out.println("|| 7 Ordenar Intercalação Variavel   ||");
     System.out.println("|| 8 Ordenar por Substituição        ||");
+    System.out.println("|| 9 Arvore B                        ||");
     System.out.println("======================================\n");
     int choice = readChoiceFromUser();
     return choice;
+  }
+
+  public static void BTree() throws Exception{
+    bd.create_btree();
   }
 
   public static void ordenarVariavel() throws Exception {
