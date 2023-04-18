@@ -48,6 +48,7 @@ class IndiceArvoreB {
           break;
         } else if (id == no.no[i].id) {
           achou = true;
+          indice.close();
           return no.no[i].pos;
         }
       }
