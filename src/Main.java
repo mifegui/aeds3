@@ -114,14 +114,19 @@ public class Main {
     System.out.println("|| 6 Ordenar Intercalação Comum      ||");
     System.out.println("|| 7 Ordenar Intercalação Variavel   ||");
     System.out.println("|| 8 Ordenar por Substituição        ||");
-    System.out.println("|| 9 Arvore B                        ||");
+    System.out.println("|| 9 Ver anime por id com BTree      ||");
     System.out.println("======================================\n");
     int choice = readChoiceFromUser();
     return choice;
   }
 
-  public static void BTree() throws Exception{
-    bd.create_btree();
+  public static void BTree() throws Exception {
+    System.out.print("ID: ");
+    int id = sc.nextInt();
+    Anime anime = bd.readFromBTree(id);
+    if (anime == null) System.out.println(
+      "Anime não encontrado!"
+    ); else anime.print();
   }
 
   public static void ordenarVariavel() throws Exception {
