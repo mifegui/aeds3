@@ -203,14 +203,12 @@ public class Arquivo {
     byte[] ba = new byte[152];
 
     indice.seek(0);
-    direcao = indice.readInt();
+    direcao = indice.readLong();
 
-    System.out.println(direcao);
     while (!achou && direcao > -1) {
       indice.seek(direcao);
       indice.read(ba);
       no.fromByteArray(ba);
-      System.out.println("id: " + no.getId());
 
       direcao = no.p[no.getN()];
       for (int i = 0; i < no.getN(); i++) {
@@ -220,11 +218,15 @@ public class Arquivo {
         } else if (id == no.no[i].getId()) {
           achou = true;
           bd.seek(no.no[i].pos);
+          char lapide = bd.readChar();
+          if (lapide == '*') {
+            achou = false;
+            continue;
+          }
           ba = new byte[bd.readInt()];
           bd.read(ba);
           a = new Anime();
           a.fromByteArray(ba);
-
           i = no.getN();
         }
       }
@@ -240,30 +242,42 @@ public class Arquivo {
    *
    * ADD da BTree
    */
-  public static void add(Ponto ponto) throws Exception {
-    RandomAccessFile raf = new RandomAccessFile("arquivoB", "rw");
-    byte[] ba = new byte[152];
+  public static void add(Ponto p1) throws Exception {
+    short ordem = 8;
+    RandomAccessFile indice = new RandomAccessFile("arvoreB", "rw");
+    byte[] noBytes = new byte[152];
     Retorno rtn = new Retorno();
-    int i;
     No raiz, nRaiz;
-    int raizN;
-    raf.seek(0);
-    //i = raf.readInt();
-    if (raf.getFilePointer() == 0) {
-      raf.writeLong(raf.length());
-      raf.seek(raf.length());
-      raiz = new No(raf.getFilePointer());
-      raf.write(raiz.toByteArray());
-    } else {
-      raiz = new No(raf.getFilePointer());
-      raf.read(ba);
-      raiz.fromByteArray(ba);
+    int raizN; // checagem se sera necessario criar nova raiz
+
+    indice.seek(0);
+    // Criar a raiz se for o primeiro ponto que estamos adicionando
+    if (indice.length() == 0) {
+      indice.writeLong(0);
+      raiz = new No();
+      long raizPos = indice.getFilePointer();
+      raiz.addPonto(p1, raizPos);
+      indice.write(raiz.toByteArray());
+      indice.seek(0);
+      indice.writeLong(raizPos);
+      return;
     }
+
+    // Encontrar no raiz
+    indice.seek(indice.readLong());
+    raiz = new No(indice.getFilePointer());
+    indice.read(noBytes);
+    raiz.fromByteArray(noBytes);
+
     raizN = raiz.getN();
-    raf.close();
-    rtn = add(ponto, raiz);
+    indice.close();
+
+    rtn = add(p1, raiz);
+
+    // caso ainda se deva acrescentar algum registro a raiz
     if (rtn.promovido != null) {
-      raf = new RandomAccessFile("arvoreB", "rw");
+      indice = new RandomAccessFile("arvoreB", "rw");
+
       if (raiz.getN() < ordem - 1 && raizN < ordem - 1) {
         raiz.addPonto(rtn.promovido, rtn.novoNo.getPos());
       } else { // caso haja a necessidade de criacao de uma nova raiz
@@ -272,22 +286,25 @@ public class Arquivo {
         nRaiz.p[0] = raiz.getPos();
         // nNo a ser criado aqui = pontDir da raiz
         nRaiz.p[1] = rtn.novoNo.getPos();
-        // raiz.no[ordem/2] = registro da raiz
+        // raiz.r[ordem/2] = registro da raiz
         nRaiz.no[0] = rtn.promovido.copy();
         nRaiz.setN(nRaiz.getN() + 1);
-        raf.seek(raf.length());
-        nRaiz.setPos(raf.getFilePointer());
-        raf.write(nRaiz.toByteArray());
-        raf.seek(0);
-        raf.writeLong(nRaiz.getPos());
+
+        indice.seek(indice.length());
+        nRaiz.setPos(indice.getFilePointer());
+        indice.write(nRaiz.toByteArray());
+        indice.seek(0);
+        indice.writeLong(nRaiz.getPos());
       }
-      raf.seek(raiz.getPos());
-      raf.write(raiz.toByteArray());
-      raf.close();
+
+      indice.seek(raiz.getPos());
+      indice.write(raiz.toByteArray());
+
+      indice.close();
     }
   }
 
-  static Retorno add(Ponto ponto, No node) throws Exception {
+  private static Retorno add(Ponto p1, No no) throws Exception {
     short ordem = 8;
     No nNo = new No();
     Retorno rtn = new Retorno(); // retorno recursivo
@@ -295,95 +312,95 @@ public class Arquivo {
     byte[] noBytes = new byte[152];
     Ponto tmp;
     long pontDir = -1;
-    RandomAccessFile raf = new RandomAccessFile("arvoreB", "rw");
+    RandomAccessFile indice = new RandomAccessFile("arvoreB", "rw");
 
-    if (node.ehFolha()) {
-      if (node.getN() >= ordem - 1) {
-        if (ponto.getId() < node.no[node.no.length - 1].id) {
+    if (no.ehFolha()) {
+      if (no.getN() >= ordem - 1) {
+        if (p1.getId() < no.no[no.no.length - 1].id) {
           tmp = new Ponto();
-          tmp = ponto.copy();
-          ponto = node.getPonto(ordem - 1).copy();
-          node.setPonto(ordem - 1, tmp);
-          node.ordena();
+          tmp = p1.copy();
+          p1 = no.getPonto(ordem - 1).copy();
+          no.setPonto(ordem - 1, tmp);
+          no.ordena();
         }
 
-        for (int i = ordem / 2 + 1; i < node.no.length; i++) {
-          nNo.addPonto(node.no[i], node.p[i + 1]);
-          node.no[i].reset();
-          node.p[i + 1] = -1;
+        for (int i = ordem / 2 + 1; i < no.no.length; i++) {
+          nNo.addPonto(no.no[i], no.p[i + 1]);
+          no.no[i].reset();
+          no.p[i + 1] = -1;
         }
-        nNo.addPonto(ponto, -1);
-        node.setN(ordem / 2);
+        nNo.addPonto(p1, -1);
+        no.setN(ordem / 2);
 
         fim.novoNo = nNo;
-        fim.promovido = node.no[ordem / 2].copy();
-        node.no[ordem / 2].reset();
+        fim.promovido = no.no[ordem / 2].copy();
+        no.no[ordem / 2].reset();
 
-        raf.seek(raf.length());
-        nNo.setPos(raf.getFilePointer());
-        raf.write(nNo.toByteArray());
-        raf.seek(node.getPos());
-        raf.write(node.toByteArray());
+        indice.seek(indice.length());
+        nNo.setPos(indice.getFilePointer());
+        indice.write(nNo.toByteArray());
+        indice.seek(no.getPos());
+        indice.write(no.toByteArray());
       } else {
         // caso o elemento caia na folha
-        node.addPonto(ponto, -1); // ponteiros de folhas sempre valem -1
+        no.addPonto(p1, -1); // ponteiros de folhas sempre valem -1
         fim.promovido = null;
         fim.novoNo = null;
-        raf.seek(node.getPos());
-        raf.write(node.toByteArray());
+        indice.seek(no.getPos());
+        indice.write(no.toByteArray());
       }
     } else {
       // Descobrir qual ponteiro do no seguir
-      nNo.setPos(node.direcao(ponto.getId()));
-      raf.seek(nNo.getPos());
-      raf.read(noBytes);
+      nNo.setPos(no.direcao(p1.getId()));
+      indice.seek(nNo.getPos());
+      indice.read(noBytes);
       nNo.fromByteArray(noBytes);
-      raf.close();
+      indice.close();
 
-      rtn = add(ponto, nNo);
+      rtn = add(p1, nNo);
 
-      raf = new RandomAccessFile("arvoreB", "rw");
+      indice = new RandomAccessFile("arvoreB", "rw");
       if (rtn.promovido != null) {
-        if (node.getN() < ordem - 1) {
-          node.addPonto(rtn.promovido, rtn.novoNo.getPos());
-          raf.seek(node.getPos());
-          raf.write(node.toByteArray());
+        if (no.getN() < ordem - 1) {
+          no.addPonto(rtn.promovido, rtn.novoNo.getPos());
+          indice.seek(no.getPos());
+          indice.write(no.toByteArray());
           fim.promovido = null;
           fim.novoNo = null;
         } else { // criar novo no
           nNo = new No();
-          if (rtn.promovido.getId() < node.no[node.no.length - 1].id) {
+          if (rtn.promovido.getId() < no.no[no.no.length - 1].id) {
             tmp = new Ponto();
             tmp = rtn.promovido.copy();
-            rtn.promovido = node.getPonto(ordem - 1).copy();
-            node.setPonto(ordem - 1, tmp);
+            rtn.promovido = no.getPonto(ordem - 1).copy();
+            no.setPonto(ordem - 1, tmp);
 
-            pontDir = node.p[node.p.length - 1];
-            node.p[node.p.length - 1] = rtn.novoNo.getPos();
+            pontDir = no.p[no.p.length - 1];
+            no.p[no.p.length - 1] = rtn.novoNo.getPos();
           } else pontDir = rtn.novoNo.getPos();
-          node.ordena();
+          no.ordena();
 
-          nNo.p[0] = node.p[ordem / 2 + 1];
-          node.p[ordem / 2 + 1] = -1;
+          nNo.p[0] = no.p[ordem / 2 + 1];
+          no.p[ordem / 2 + 1] = -1;
 
           // preencher nNo
-          for (int i = ordem / 2 + 1; i < node.no.length; i++) {
-            nNo.addPonto(node.no[i], node.p[i + 1]);
-            node.no[i].reset();
-            node.p[i + 1] = -1;
+          for (int i = ordem / 2 + 1; i < no.no.length; i++) {
+            nNo.addPonto(no.no[i], no.p[i + 1]);
+            no.no[i].reset();
+            no.p[i + 1] = -1;
           }
           nNo.addPonto(rtn.promovido, pontDir);
-          node.setN(ordem / 2);
+          no.setN(ordem / 2);
 
-          fim.promovido = node.no[ordem / 2].copy();
+          fim.promovido = no.no[ordem / 2].copy();
           fim.novoNo = nNo;
-          node.no[ordem / 2].reset();
+          no.no[ordem / 2].reset();
 
-          raf.seek(raf.length());
-          nNo.setPos(raf.getFilePointer());
-          raf.write(nNo.toByteArray());
-          raf.seek(node.getPos());
-          raf.write(node.toByteArray());
+          indice.seek(indice.length());
+          nNo.setPos(indice.getFilePointer());
+          indice.write(nNo.toByteArray());
+          indice.seek(no.getPos());
+          indice.write(no.toByteArray());
         }
       } else {
         fim.promovido = null;
@@ -391,7 +408,7 @@ public class Arquivo {
       }
     }
 
-    raf.close();
+    indice.close();
     return fim;
   }
 
@@ -1196,7 +1213,7 @@ class No extends Ponto {
   }
 
   public Ponto getPonto(int pos) {
-    return no[pos];
+    return no[pos - 1];
   }
 
   public void setN(int n) {
@@ -1208,7 +1225,7 @@ class No extends Ponto {
   }
 
   public void setPonto(int pos, Ponto p) {
-    no[pos] = p.copy();
+    no[pos - 1] = p.copy();
   }
 
   public byte[] toByteArray() throws IOException {

@@ -144,6 +144,8 @@ public class Main {
   public static void setupDb(boolean force) throws Exception {
     if (bd.alreadyExists() && !force) return;
     bd.initializeFile();
+    Paths.get("./arquivoB").toFile().delete();
+    Paths.get("./arvoreB").toFile().delete();
 
     int rowsToRead = 12250;
     boolean skipedHeader = true;
