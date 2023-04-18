@@ -17,6 +17,7 @@ public class Arquivo {
   }
 
   private IndiceArvoreB indiceArvoreB;
+  private IndiceHash indiceHash;
 
   private int m = 5; // quantidade de registros por bloco (memoria primaria)
   private int n = 4; // quantidade de caminhos
@@ -26,6 +27,11 @@ public class Arquivo {
     this.stringPath = path;
     this.path = Paths.get(stringPath);
     this.indiceArvoreB = new IndiceArvoreB(stringPath + ".arvoreBIndice.db");
+    try {
+      this.indiceHash = new IndiceHash(stringPath + ".hashIndice.db");
+    } catch (Exception e) {
+      System.out.println(e);
+    }
   }
 
   private String stringPath;
@@ -78,6 +84,7 @@ public class Arquivo {
     byte[] ba = anime.toByteArray();
     raf.seek(raf.length()); //mover para o fim do arquivo
     this.indiceArvoreB.add(new Ponto(anime.getId(), raf.getFilePointer()));
+    this.indiceHash.addchaves(anime.getId(), (int) raf.getFilePointer());
     raf.writeChar(' ');
     raf.writeInt(ba.length); //escrever
     raf.write(ba); //escrever
@@ -149,6 +156,7 @@ public class Arquivo {
             // Cria o novo no final do arquivo.
             raf.seek(raf.length());
             this.indiceArvoreB.add(new Ponto(novo.getId(), raf.length()));
+            this.indiceHash.updateAddress(novo.getId(), (int) raf.length());
             raf.writeChar(' '); //lapide
             raf.writeInt(novoba.length); //tamanho
             raf.write(novoba);
@@ -197,9 +205,9 @@ public class Arquivo {
     return false;
   }
 
-  public Anime readFromBTree(int id) throws Exception {
+  private Anime readFromPos(long pos) throws Exception {
     RandomAccessFile raf = new RandomAccessFile(path.toFile(), "rw");
-    long pos = this.indiceArvoreB.read(id);
+
     if (pos == -1) return null;
     raf.seek(pos);
     char lapide = raf.readChar();
@@ -211,6 +219,16 @@ public class Arquivo {
     Anime a = new Anime();
     a.fromByteArray(ba);
     return a;
+  }
+
+  public Anime readFromHash(int id) throws Exception {
+    long pos = this.indiceHash.search(id);
+    return readFromPos(pos);
+  }
+
+  public Anime readFromBTree(int id) throws Exception {
+    long pos = this.indiceArvoreB.read(id);
+    return readFromPos(pos);
   }
 
   /** */

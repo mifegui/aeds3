@@ -72,6 +72,11 @@ public class Main {
             BTree();
             break;
           }
+        case 10:
+          {
+            Hash();
+            break;
+          }
       }
     } while (choice != 0);
   }
@@ -83,7 +88,7 @@ public class Main {
    */
   static int readChoiceFromUser() throws Exception {
     int opcao = -1;
-    int MAX = 9;
+    int MAX = 10;
     do {
       try {
         System.out.print("~$ ");
@@ -103,21 +108,31 @@ public class Main {
    * retorna o int que foi executado
    */
   static int menu() throws Exception {
-    System.out.println("===========Menu=======================");
+    System.out.println("===========Menu========================");
     System.out.println("||                                   ||");
-    System.out.println("|| 0 Sair                            ||");
-    System.out.println("|| 1 Regerar banco                   ||");
-    System.out.println("|| 2 Criar anime                     ||");
-    System.out.println("|| 3 Ver anime por id                ||");
-    System.out.println("|| 4 Atualizar anime                 ||");
-    System.out.println("|| 5 Deletar anime                   ||");
-    System.out.println("|| 6 Ordenar Intercalação Comum      ||");
-    System.out.println("|| 7 Ordenar Intercalação Variavel   ||");
-    System.out.println("|| 8 Ordenar por Substituição        ||");
-    System.out.println("|| 9 Ver anime por id com BTree      ||");
-    System.out.println("======================================\n");
+    System.out.println("|| 0  Sair                           ||");
+    System.out.println("|| 1  Regerar banco e indices        ||");
+    System.out.println("|| 2  Criar anime                    ||");
+    System.out.println("|| 3  Ver anime por id               ||");
+    System.out.println("|| 4  Atualizar anime                ||");
+    System.out.println("|| 5  Deletar anime                  ||");
+    System.out.println("|| 6  Ordenar Intercalação Comum     ||");
+    System.out.println("|| 7  Ordenar Intercalação Variavel  ||");
+    System.out.println("|| 8  Ordenar por Substituição       ||");
+    System.out.println("|| 9  Ver anime por id com BTree     ||");
+    System.out.println("|| 10 Ver anime por id com Hash      ||");
+    System.out.println("=======================================\n");
     int choice = readChoiceFromUser();
     return choice;
+  }
+
+  public static void Hash() throws Exception {
+    System.out.print("ID: ");
+    int id = sc.nextInt();
+    Anime anime = bd.readFromHash(id);
+    if (anime == null) System.out.println(
+      "Anime não encontrado!"
+    ); else anime.print();
   }
 
   public static void BTree() throws Exception {

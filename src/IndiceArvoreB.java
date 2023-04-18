@@ -261,6 +261,10 @@ class Ponto {
     return this.id;
   }
 
+  public static int sizeOf() {
+    return Long.BYTES + Integer.BYTES;
+  }
+
   public Ponto copy() {
     Ponto copy = new Ponto();
     copy.id = this.id;
