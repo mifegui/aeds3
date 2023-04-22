@@ -77,6 +77,11 @@ public class Main {
             Hash();
             break;
           }
+        case 11:
+          {
+            ListaInvertida();
+            break;
+          }
       }
     } while (choice != 0);
   }
@@ -88,7 +93,7 @@ public class Main {
    */
   static int readChoiceFromUser() throws Exception {
     int opcao = -1;
-    int MAX = 10;
+    int MAX = 11;
     do {
       try {
         System.out.print("~$ ");
@@ -121,9 +126,25 @@ public class Main {
     System.out.println("|| 8  Ordenar por Substituição       ||");
     System.out.println("|| 9  Ver anime por id com BTree     ||");
     System.out.println("|| 10 Ver anime por id com Hash      ||");
+    System.out.println("|| 11 Ver animes por DataLançamento  ||");
     System.out.println("=======================================\n");
     int choice = readChoiceFromUser();
     return choice;
+  }
+
+  public static void ListaInvertida() throws Exception {
+    System.out.print("Data de lançamento (eg: 2020 ou 1995 ou 2001): ");
+    sc.nextLine();
+    String data = sc.nextLine();
+    Anime anime[] = bd.getFromInvList(data);
+    if (anime.length == 0 || anime[0] == null) System.out.println(
+      "Animes não encontrados para essa data de lançamento!"
+    ); else {
+      System.out.println("Animes encontrados:");
+      for (Anime a : anime) {
+        if (a != null) a.print();
+      }
+    }
   }
 
   public static void Hash() throws Exception {
@@ -160,10 +181,14 @@ public class Main {
     if (bd.alreadyExists() && !force) return;
     bd.initializeFile();
 
-    int rowsToRead = 12250;
+    int readWhat = 12250;
+    int rowsToRead = readWhat;
     boolean skipedHeader = true;
     System.out.println(
       "Lendo " + rowsToRead + " linhas do .csv para criar arquivo..."
+    );
+    System.out.println(
+      "Também vamos montar a lista invertida, o índice árvore e o ídice hash enquanto lemos os arquivos do csv."
     );
     final Path path = Paths.get("../bd/data.csv");
     for (
@@ -187,9 +212,15 @@ public class Main {
         NumberFormat.getInstance().parse(csvRow.getField(4)).intValue(),
         csvRow.getField(5)
       );
+
+      if (rowsToRead % 1000 == 0) {
+        System.out.println("Lido " + (readWhat - rowsToRead) + " linhas...");
+      }
       bd.create(a);
       rowsToRead--;
     }
+    System.out.println("Montando lista invertida...");
+    bd.listaInvertida.buildAiredDateArchive();
     System.out.println();
   }
 

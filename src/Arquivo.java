@@ -18,6 +18,7 @@ public class Arquivo {
 
   private IndiceArvoreB indiceArvoreB;
   private IndiceHash indiceHash;
+  public ListaInvertida listaInvertida;
 
   private int m = 5; // quantidade de registros por bloco (memoria primaria)
   private int n = 4; // quantidade de caminhos
@@ -32,6 +33,7 @@ public class Arquivo {
     } catch (Exception e) {
       System.out.println(e);
     }
+    this.listaInvertida = new ListaInvertida(stringPath + ".listaInvertida.db");
   }
 
   private String stringPath;
@@ -55,6 +57,7 @@ public class Arquivo {
       System.out.println((e));
     }
     this.indiceArvoreB.initializeFile();
+    this.listaInvertida.initializeFile();
   }
 
   private Anime lastCreated;
@@ -85,6 +88,10 @@ public class Arquivo {
     raf.seek(raf.length()); //mover para o fim do arquivo
     this.indiceArvoreB.add(new Ponto(anime.getId(), raf.getFilePointer()));
     this.indiceHash.addchaves(anime.getId(), (int) raf.getFilePointer());
+    this.listaInvertida.addAiredToInvertedList(
+        anime.getAired(),
+        (int) raf.getFilePointer()
+      );
     raf.writeChar(' ');
     raf.writeInt(ba.length); //escrever
     raf.write(ba); //escrever
@@ -219,6 +226,17 @@ public class Arquivo {
     Anime a = new Anime();
     a.fromByteArray(ba);
     return a;
+  }
+
+  public Anime[] getFromInvList(String airedDate) throws Exception {
+    int[] pos = this.listaInvertida.invertedListSearch(airedDate);
+    Anime[] as = new Anime[pos.length];
+
+    for (int i = 0; i < pos.length; i++) {
+      if (pos[i] != 0) as[i] = readFromPos(pos[i]);
+    }
+
+    return as;
   }
 
   public Anime readFromHash(int id) throws Exception {
