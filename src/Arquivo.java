@@ -12,13 +12,10 @@ import java.nio.file.StandardOpenOption;
 
 public class Arquivo {
 
-  public static void main(String[] args) {
-    System.out.println("a");
-  }
-
   private IndiceArvoreB indiceArvoreB;
   private IndiceHash indiceHash;
   public ListaInvertida listaInvertida;
+  public Huffman huffman;
 
   private int m = 5; // quantidade de registros por bloco (memoria primaria)
   private int n = 4; // quantidade de caminhos
@@ -34,6 +31,7 @@ public class Arquivo {
       System.out.println(e);
     }
     this.listaInvertida = new ListaInvertida(stringPath + ".listaInvertida.db");
+    this.huffman = new Huffman("../bd/banco.db.");
   }
 
   private String stringPath;

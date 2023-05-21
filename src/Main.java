@@ -82,6 +82,26 @@ public class Main {
             ListaInvertida();
             break;
           }
+        case 12:
+          {
+            CompactaHuffman();
+            break;
+          }
+        case 13:
+          {
+            DescompactaHuffman();
+            break;
+          }
+        case 14:
+          {
+            CompactaLZW();
+            break;
+          }
+        case 15:
+          {
+            DescompactaLZW();
+            break;
+          }
       }
     } while (choice != 0);
   }
@@ -93,7 +113,7 @@ public class Main {
    */
   static int readChoiceFromUser() throws Exception {
     int opcao = -1;
-    int MAX = 11;
+    int MAX = 14;
     do {
       try {
         System.out.print("~$ ");
@@ -127,6 +147,10 @@ public class Main {
     System.out.println("|| 9  Ver anime por id com BTree     ||");
     System.out.println("|| 10 Ver anime por id com Hash      ||");
     System.out.println("|| 11 Ver animes por DataLançamento  ||");
+    System.out.println("|| 12 Compactar Huffman              ||");
+    System.out.println("|| 13 Descompactar Huffman           ||");
+    System.out.println("|| 14 Compactar LZW                  ||");
+    System.out.println("|| 15 Descompactar LZW               ||");
     System.out.println("=======================================\n");
     int choice = readChoiceFromUser();
     return choice;
@@ -163,6 +187,23 @@ public class Main {
     if (anime == null) System.out.println(
       "Anime não encontrado!"
     ); else anime.print();
+  }
+
+  public static void DescompactaLZW() throws Exception {}
+
+  public static void CompactaLZW() throws Exception {}
+
+  public static void DescompactaHuffman() throws Exception {
+    System.out.println("Descompactando...");
+    bd.huffman.descompactar(
+      "../bd/banco.db.huffCompressao.huffman",
+      "../bd/banco.db"
+    );
+  }
+
+  public static void CompactaHuffman() throws Exception {
+    System.out.println("Compactando...");
+    bd.huffman.compactar(bd.path.toString());
   }
 
   public static void ordenarVariavel() throws Exception {
