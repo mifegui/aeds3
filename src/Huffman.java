@@ -8,7 +8,6 @@ import java.util.Map;
 
 public class Huffman {
 
-  private int versao = 1;
   private String writePath;
 
   Huffman(String writePath) {
