@@ -113,7 +113,7 @@ public class Main {
    */
   static int readChoiceFromUser() throws Exception {
     int opcao = -1;
-    int MAX = 14;
+    int MAX = 15;
     do {
       try {
         System.out.print("~$ ");
@@ -189,9 +189,15 @@ public class Main {
     ); else anime.print();
   }
 
-  public static void DescompactaLZW() throws Exception {}
+  public static void DescompactaLZW() throws Exception {
+    System.out.println("Descompactando...");
+    bd.lzw.descompactar("../bd/banco.db.lzwCompressao.lzw", "../bd/banco.db");
+  }
 
-  public static void CompactaLZW() throws Exception {}
+  public static void CompactaLZW() throws Exception {
+    System.out.println("Compactando...");
+    bd.lzw.compactar(bd.path.toString());
+  }
 
   public static void DescompactaHuffman() throws Exception {
     System.out.println("Descompactando...");

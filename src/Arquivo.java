@@ -16,6 +16,7 @@ public class Arquivo {
   private IndiceHash indiceHash;
   public ListaInvertida listaInvertida;
   public Huffman huffman;
+  public LZW lzw;
 
   private int m = 5; // quantidade de registros por bloco (memoria primaria)
   private int n = 4; // quantidade de caminhos
@@ -32,6 +33,7 @@ public class Arquivo {
     }
     this.listaInvertida = new ListaInvertida(stringPath + ".listaInvertida.db");
     this.huffman = new Huffman("../bd/banco.db.");
+    this.lzw = new LZW("../bd/banco.db.");
   }
 
   private String stringPath;
