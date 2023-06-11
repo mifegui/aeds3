@@ -107,8 +107,22 @@ public class Main {
             kmp();
             break;
           }
+        case 17:
+          {
+            boyer();
+            break;
+          }
       }
     } while (choice != 0);
+  }
+
+  public static void boyer() throws Exception {
+    System.out.print("Texto a procurar: ");
+    sc.nextLine();
+    String texto = sc.nextLine();
+    RandomAccessFile raf = new RandomAccessFile(bd.path.toFile(), "rw");
+    int res = BoyerMoore.encontrar(texto, raf);
+    System.out.println("Encontrado " + res + " vezes!");
   }
 
   public static void kmp() throws Exception {
@@ -166,6 +180,7 @@ public class Main {
     System.out.println("|| 14 Compactar LZW                  ||");
     System.out.println("|| 15 Descompactar LZW               ||");
     System.out.println("|| 16 Procurar com KMP               ||");
+    System.out.println("|| 17 Procurar com Boyer Moore       ||");
     System.out.println("=======================================\n");
     int choice = readChoiceFromUser();
     return choice;
