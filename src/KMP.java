@@ -15,7 +15,7 @@ public class KMP {
    */
   public static int encontrar(String padrao, RandomAccessFile arq)
     throws IOException {
-    return encontrar(padrao, arq, false, false);
+    return encontrar(padrao, arq, false, true);
   }
 
   /**

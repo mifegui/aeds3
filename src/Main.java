@@ -121,8 +121,12 @@ public class Main {
     sc.nextLine();
     String texto = sc.nextLine();
     RandomAccessFile raf = new RandomAccessFile(bd.path.toFile(), "rw");
+    // records how much time it takes
+    long startTime = System.currentTimeMillis();
     int res = BoyerMoore.encontrar(texto, raf);
-    System.out.println("Encontrado " + res + " vezes!");
+    long estimatedTime = System.currentTimeMillis() - startTime;
+    System.out.println("Número de comparacoes: " + res);
+    System.out.println("Tempo: " + estimatedTime);
   }
 
   public static void kmp() throws Exception {
@@ -130,8 +134,11 @@ public class Main {
     sc.nextLine();
     String texto = sc.nextLine();
     RandomAccessFile raf = new RandomAccessFile(bd.path.toFile(), "rw");
+    long startTime = System.currentTimeMillis();
     int res = KMP.encontrar(texto, raf);
-    System.out.println("Encontrado " + res + " vezes!");
+    long estimatedTime = System.currentTimeMillis() - startTime;
+    System.out.println("Número de comparacoes: " + res);
+    System.out.println("Tempo: " + estimatedTime);
   }
 
   /**
