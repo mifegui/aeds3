@@ -167,7 +167,7 @@ public class Arquivo {
             raf.writeChar(' '); //lapide
             raf.writeInt(novoba.length); //tamanho
             raf.write(novoba);
-            //result = delete(anime.getId());
+            // result = delete(anime.getId());
           }
           raf.close();
           return true;
