@@ -112,8 +112,50 @@ public class Main {
             boyer();
             break;
           }
+        case 18:
+          {
+            criptografaTranspo();
+            break;
+          }
+        case 19:
+          {
+            descriptografaTranspo();
+            break;
+          }
       }
     } while (choice != 0);
+  }
+
+  static int chaveTranspo = 3;
+
+  public static void descriptografaTranspo() throws Exception {
+    System.out.print("ID: ");
+    int id = sc.nextInt();
+    Anime anime = bd.read(id);
+    if (anime == null) {
+      System.out.println("Anime nao encontrado");
+      return;
+    }
+    anime.setName(CifraTranspo.descriptografa(anime.getName(), chaveTranspo));
+
+    bd.update(anime);
+
+    System.out.println("Nome do Anime descriptografado");
+  }
+
+  public static void criptografaTranspo() throws Exception {
+    System.out.print("ID: ");
+    int id = sc.nextInt();
+    Anime anime = bd.read(id);
+    if (anime == null) {
+      System.out.println("Anime nao encontrado");
+      return;
+    }
+    anime.setName(CifraTranspo.criptografa(anime.getName(), chaveTranspo));
+
+    bd.update(anime);
+
+    System.out.println("Nome do Anime criptografado");
   }
 
   public static void boyer() throws Exception {
@@ -148,7 +190,7 @@ public class Main {
    */
   static int readChoiceFromUser() throws Exception {
     int opcao = -1;
-    int MAX = 17;
+    int MAX = 19;
     do {
       try {
         System.out.print("~$ ");
@@ -168,27 +210,29 @@ public class Main {
    * retorna o int que foi executado
    */
   static int menu() throws Exception {
-    System.out.println("===========Menu========================");
-    System.out.println("||                                   ||");
-    System.out.println("|| 0  Sair                           ||");
-    System.out.println("|| 1  Regerar banco e indices        ||");
-    System.out.println("|| 2  Criar anime                    ||");
-    System.out.println("|| 3  Ver anime por id               ||");
-    System.out.println("|| 4  Atualizar anime                ||");
-    System.out.println("|| 5  Deletar anime                  ||");
-    System.out.println("|| 6  Ordenar Intercalação Comum     ||");
-    System.out.println("|| 7  Ordenar Intercalação Variavel  ||");
-    System.out.println("|| 8  Ordenar por Substituição       ||");
-    System.out.println("|| 9  Ver anime por id com BTree     ||");
-    System.out.println("|| 10 Ver anime por id com Hash      ||");
-    System.out.println("|| 11 Ver animes por DataLançamento  ||");
-    System.out.println("|| 12 Compactar Huffman              ||");
-    System.out.println("|| 13 Descompactar Huffman           ||");
-    System.out.println("|| 14 Compactar LZW                  ||");
-    System.out.println("|| 15 Descompactar LZW               ||");
-    System.out.println("|| 16 Procurar com KMP               ||");
-    System.out.println("|| 17 Procurar com Boyer Moore       ||");
-    System.out.println("=======================================\n");
+    System.out.println("===========Menu============================");
+    System.out.println("||                                       ||");
+    System.out.println("|| 0  Sair                               ||");
+    System.out.println("|| 1  Regerar banco e indices            ||");
+    System.out.println("|| 2  Criar anime                        ||");
+    System.out.println("|| 3  Ver anime por id                   ||");
+    System.out.println("|| 4  Atualizar anime                    ||");
+    System.out.println("|| 5  Deletar anime                      ||");
+    System.out.println("|| 6  Ordenar Intercalação Comum         ||");
+    System.out.println("|| 7  Ordenar Intercalação Variavel      ||");
+    System.out.println("|| 8  Ordenar por Substituição           ||");
+    System.out.println("|| 9  Ver anime por id com BTree         ||");
+    System.out.println("|| 10 Ver anime por id com Hash          ||");
+    System.out.println("|| 11 Ver animes por DataLançamento      ||");
+    System.out.println("|| 12 Compactar Huffman                  ||");
+    System.out.println("|| 13 Descompactar Huffman               ||");
+    System.out.println("|| 14 Compactar LZW                      ||");
+    System.out.println("|| 15 Descompactar LZW                   ||");
+    System.out.println("|| 16 Procurar com KMP                   ||");
+    System.out.println("|| 17 Procurar com Boyer Moore           ||");
+    System.out.println("|| 18 Criptografar nome Transposição     ||");
+    System.out.println("|| 19 Descriptografar nome Transposição  ||");
+    System.out.println("===========================================\n");
     int choice = readChoiceFromUser();
     return choice;
   }
